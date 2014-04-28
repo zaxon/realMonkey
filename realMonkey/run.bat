@@ -1,1 +1,2 @@
 python test.py
+pause

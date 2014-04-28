@@ -114,15 +114,11 @@ class AdbCommand(object):
         for i in deviceList:
             i = i.split('\t')[0]
             INFO.PATH = '%s%s%s' %(self.__path(),os.sep,i)
-            print INFO.PATH
+            #print INFO.PATH
             if os.path.exists(INFO.PATH) == False:
-                #f = file(INFO.PATH,'w')
-                #f.close()
-                os.makedirs(INFO.PATH)
+                f = file(INFO.PATH,'w')
+                f.close()
                 #print i
-                return i
-            else :
-                self.__deletefiles(INFO.PATH)
                 return i
         print 'Please check you have idle device!!!'
         sys.exit(1)
