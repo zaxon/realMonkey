@@ -11,7 +11,7 @@ class toHtml(object):
     #生成html头部
     def headHtml(self,filename,scriptPath):
         if os.path.exists(scriptPath) == False:
-            os.mkdir(scriptPath)
+            os.makedirs(scriptPath)
         html=open(filename,'w')
         html.write("""
                     <html>
@@ -43,6 +43,8 @@ class toHtml(object):
                    <td align = center style=font-weight:bold>步骤</td><td align = center style=font-weight:bold>操作名称</td>
                    <td align = center style=font-weight:bold>截图</td></tr>
                    ''')
+        html.flush()
+        html.close()
     
     #生成html table  
     def bodyHtml(self,filename,step,casename,picname,exception):
@@ -57,11 +59,14 @@ class toHtml(object):
             html.write('<img height=80 width=60 onmouseover="max(this.id)" onmouseout="min(this.id)" src="%s" id="image%s" />'%(picname,picname))
             html.write('</td>')
             html.write('</tr>')
+        html.flush()
+        html.close()
     #生成html尾部
     def endHtml(self,filename):
         html=open(filename,'a')
         html.write('</table>')
         html.write('</body></html>')
+        html.flush()
         html.close()
 
     

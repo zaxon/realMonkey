@@ -10,13 +10,13 @@ class reportcoloect(object):
     def __init__(self,scriptPath):
         
         self.__scriptPath = scriptPath
-        self.filename = '%s\\report.html'%(scriptPath)
+        self.filename = '%s%sreport.html'%(scriptPath,os.sep)
         
         self.htm=toHtml()
         self.htm.headHtml(self.filename, scriptPath)
 
     def logcolect(self,step=None,casename=None,picname=None,flag=None,exception=None):
-        self.picname = '\\%s'%(picname)
+        self.picname = '%s'%(picname)
         if flag=='end':
             self.htm.endHtml(self.filename)
         else:

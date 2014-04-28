@@ -75,19 +75,19 @@ class rMonkeyRunner(object) :
 
     def install(self,apkPath):
         self.device.installPackage(apkPath)
-        self.device.__record('install %s'%(apkPath), 'install')
+        self.__record('install %s'%(apkPath), 'install')
     
     def uninstall(self, packageName):
         self.device.removePackage(packageName)
-        self.device.__record('uninstall %s'%(packageName), 'uninstall')
+        self.__record('uninstall %s'%(packageName), 'uninstall')
         
     def clickxy(self,x,y):
         self.device.touch(x,y)
-        self.device.__record('clickxy_%s,%s'%(x,y), 'clickxy')
+        self.__record('clickxy_%s,%s'%(x,y), 'clickxy')
         
     def shell(self,cmd):
         self.device.shell(cmd)
-        self.device.__record('shell_%s'%(cmd), 'shell')
+        self.__record('shell_%s'%(cmd), 'shell')
         
     def dragxy(self, x,y,toX,toY,duration=''):
         self.device.drag(x,y,toX,toY,duration)

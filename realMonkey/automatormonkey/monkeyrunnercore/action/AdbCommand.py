@@ -2,7 +2,7 @@
 '''
     @author wuqiaomin in 20140421
 '''
-import os,sys
+import os,sys,tempfile
 import subprocess
 import time
 from automatormonkey.monkeyrunnercore.info.Enum import *
@@ -56,12 +56,14 @@ class AdbCommand(object):
             self.__adbShell('/system/bin/screencap -p /sdcard/temp.png')
             self.pull('/sdcard/temp.png', savePath)
             
-            filename = '%s\\temp.png'%(savePath)
-            newname = u'%s\\%s.png'%(savePath,saveName)
+            filename = '%s%stemp.png'%(savePath,os.sep)
+            picname = '%s.png'%(saveName)
+            newname = u'%s%s%s.png'%(savePath,os.sep,saveName)
         while os.path.exists(newname):
-            newname = u'%s\\%s_%s.png'%(savePath,saveName,count)
+            newname = u'%s%s%s_%s.png'%(savePath,os.sep,saveName,count)
+            picname = '%s_%s.png'%(picname,count)
             count += 1
-        INFO.PICNAME = newname
+        INFO.PICNAME = picname
         os.rename(filename,newname)  
     
     def getSystemProp(self, value):
@@ -111,21 +113,45 @@ class AdbCommand(object):
         deviceList.pop(0)
         for i in deviceList:
             i = i.split('\t')[0]
-            INFO.PATH = '%s\\%s' %(self.__path(), i)
-            #print INFO.PATH
+            INFO.PATH = '%s%s%s' %(self.__path(),os.sep,i)
+            print INFO.PATH
             if os.path.exists(INFO.PATH) == False:
-                f = file(INFO.PATH,'w')
-                f.close()
+                #f = file(INFO.PATH,'w')
+                #f.close()
+                os.makedirs(INFO.PATH)
                 #print i
+                return i
+            else :
+                self.__deletefiles(INFO.PATH)
                 return i
         print 'Please check you have idle device!!!'
         sys.exit(1)
-    
-    def __path(self):
-       path = os.path.realpath(sys.path[2])
-       if os.path.isfile(path):
-           path = os.path.dirname(path)
-       return os.path.abspath(path)
 
+    def __deletefiles(self,src):
+        '''delete files and folders'''
+        if os.path.isfile(src):
+            try:
+                os.remove(src)
+            except:
+                pass
+        elif os.path.isdir(src):
+            for item in os.listdir(src):
+                itemsrc=os.path.join(src,item)
+                delete_file_folder(itemsrc) 
+            try:
+                os.rmdir(src)
+            except:
+                pass
+
+    def __path(self):
+        print tempfile.gettempdir()
+        return tempfile.gettempdir()
+        '''
+        path = os.path.realpath(sys.path[2])
+        print sys.path
+        if os.path.isfile(path):
+            path = os.path.dirname(path)
+        return os.path.abspath(path)
+        '''
         
         
