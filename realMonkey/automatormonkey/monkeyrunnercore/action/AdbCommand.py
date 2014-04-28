@@ -144,7 +144,6 @@ class AdbCommand(object):
                 pass
 
     def __path(self):
-        print tempfile.gettempdir()
         return tempfile.gettempdir()
         '''
         path = os.path.realpath(sys.path[2])
