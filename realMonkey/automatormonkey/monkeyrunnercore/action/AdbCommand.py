@@ -59,12 +59,12 @@ class AdbCommand(object):
             filename = '%s%stemp.png'%(savePath,os.sep)
             picname = '%s.png'%(saveName)
             newname = u'%s%s%s.png'%(savePath,os.sep,saveName)
-        while os.path.exists(newname):
-            newname = u'%s%s%s_%s.png'%(savePath,os.sep,saveName,count)
-            picname = '%s_%s.png'%(picname,count)
-            count += 1
-        INFO.PICNAME = picname
-        os.rename(filename,newname)  
+            while os.path.exists(newname):
+                newname = u'%s%s%s_%s.png'%(savePath,os.sep,saveName,count)
+                picname = '%s_%s.png'%(saveName,count)
+                count += 1
+            INFO.PICNAME = picname
+            os.rename(filename,newname)  
     
     def getSystemProp(self, value):
         p = self.__adbShell('getprop %s' %(value))
