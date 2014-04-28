@@ -114,7 +114,6 @@ class AdbCommand(object):
         for i in deviceList:
             i = i.split('\t')[0]
             INFO.PATH = '%s%s%s' %(self.__path(),os.sep,i)
-            print INFO.PATH
             if os.path.exists(INFO.PATH) == False:
                 #f = file(INFO.PATH,'w')
                 #f.close()
