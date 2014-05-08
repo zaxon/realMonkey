@@ -148,7 +148,7 @@ class uianalyzer(object) :
 #        return None
     
     def selectElement(self, nodeName, nodeValue, file, match=None):
-        '''return element's info of the specified conditions 
+        '''return element's info of the specified conditions
         '''
         if match== None:
             matchTmp = 0
@@ -162,18 +162,42 @@ class uianalyzer(object) :
             except Exception , e:
                 print 'xml encode error , please contact with xinjiankang@baidu.com | wuqiaomin@baidu.com'
             if tmpValue == nodeValue:
-                #print node.toxml().encode('utf-8')
+                if match != None:
+                    FLAG.REAMINMATCH = matchTmp - flag
                 if flag == matchTmp:
                     return node
                 flag += 1
         #raise AttributeError('elements  is not found, please check you condition')
         return None
     
-    def pullUiTmp(self) :
+    def selectChildElement(self, nodeName, nodeValue, nodes, match=None):
+        '''return element's info of the specified conditions
+        '''
+        if match== None:
+            matchTmp = 0
+        else:
+            matchTmp = match
+        flag = 0
+    
+        root = nodes
+        for node in root.getElementsByTagName('node') :
+            try :
+                tmpValue = node.getAttribute(nodeName).encode('utf-8')
+            except Exception , e:
+                print 'xml encode error , please contact with xinjiankang@baidu.com | wuqiaomin@baidu.com'
+            if tmpValue == nodeValue:
+                if flag == matchTmp:
+                    return node
+                flag += 1
+        #raise AttributeError('elements  is not found, please check you condition')
+        return None
+    
+    
+    def pullUiTmp(self, tempStr='') :
         '''
         '''
-        filePath = '/sdcard/UI_%s.xml' %(INFO.DEVICENAME)
+        filePath = '/sdcard/UI_%s%s.xml' %(INFO.DEVICENAME, tempStr)
         self.adbCmd.delete(filePath)    
         self.adbCmd.uidump(filePath)
         self.adbCmd.pull(filePath)
-        return os.path.abspath('UI_%s.xml' %(INFO.DEVICENAME))
+        return os.path.abspath('UI_%s%s.xml' %(INFO.DEVICENAME, tempStr))

@@ -155,13 +155,38 @@ class UiSelector(object):
                     toX = rect.right/2
                     toY = rect.top + swipeAreaAdjust
 
-                    self.device.drag(x, y,toX, toY)
-                    file = self.ui.pullUiTmp()
-                    node = self.ui.selectElement(nodeName, nodeValue, file, match)
-                    if node != None:
-                        #print node.toxml().encode('utf-8')
-                        return UiElement(node)
+                    if FLAG.REAMINMATCH != 0:
+                        self.device.drag(x, y, toX, toY*2)
+                        fileTemp = self.ui.pullUiTmp('temp')
+                        FLAG.PASSMATCH = self.__fileCompare(file, fileTemp)
+                        
+                        root = self.ui.selectElement('scrollable', 'true', file)
+                        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp) 
+                        rootLen = len(rootTemp.childNodes)
+                        childNode = self.ui.selectChildElement('scrollable', 'true', rootTemp)
+                        if rootLen <= 1 and childNode != None:
+                           root = self.ui.selectChildElement('scrollable', 'true', root)
+                           rootTemp = childNode
+                        
+                        if self.ui.selectChildElement(nodeName, nodeValue, root.lastChild) != None:
+                            FLAG.REAMINMATCH += 1
+
+                        for i in range(FLAG.PASSMATCH+1):
+                            rootTemp.removeChild(rootTemp.childNodes[0])
+
+                        node = self.ui.selectChildElement(nodeName, nodeValue, rootTemp, FLAG.REAMINMATCH-1)
+                        FLAG.REAMINMATCH = 0
+                        if node != None:
+                            #print node.toxml().encode('utf-8')
+                            return UiElement(node)
+                    else:
+                        file = self.ui.pullUiTmp()
+                        node = self.ui.selectElement(nodeName, nodeValue, file, match)
+                        if node != None:
+                            #print node.toxml().encode('utf-8')
+                            return UiElement(node)
                 else:
+                    self.device.drag(x, y, toX, toY)
                     rect = element.getVisibleBounds()
                     swipeAreaAdjust = (int)(rect.width() * 0.1);
                     x = rect.right - swipeAreaAdjust
@@ -177,3 +202,44 @@ class UiSelector(object):
                         return UiElement(node)
                     
         raise AttributeError('%s %s is not found, please check you condition'%(nodeName , nodeValue))
+    
+    def __fileCompare(self, file, fileTemp):
+        match = 0
+        root = self.ui.selectElement('scrollable', 'true', file)
+        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp)
+
+        rootLen = len(root.childNodes)
+        childNode = self.ui.selectChildElement('scrollable', 'true', root)
+        if rootLen <= 1 and childNode != None:
+            root = childNode
+            rootTemp = self.ui.selectChildElement('scrollable', 'true', rootTemp)
+            rootLen = len(root.childNodes)
+
+        root.removeChild(root.lastChild)
+        rootTemp.removeChild(rootTemp.firstChild)
+        rootLen = len(root.childNodes)
+        for i in range(rootLen):
+            if self.__nodeCompare(root.childNodes[rootLen-i-1],rootTemp.childNodes[0]) == True:
+                return i+1
+            
+        return match
+    
+    def __nodeCompare(self, node, nodeTemp):
+        mlen = len(node.childNodes)
+        mlenTemp = len(nodeTemp.childNodes)
+
+        if mlen != mlenTemp:
+            return False
+        if node.hasChildNodes() == True:
+            flag = False
+            for i in range (mlen):
+                flag = self.__nodeCompare(node.childNodes[i], nodeTemp.childNodes[i])
+                if flag == False:
+                    return False
+            return flag
+        else:
+            node.setAttribute('bounds','0')
+            nodeTemp.setAttribute('bounds','0')
+            strNode = node.toxml()
+            strNodeTemp = nodeTemp.toxml()
+            return strNode == strNodeTemp

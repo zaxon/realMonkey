@@ -15,6 +15,8 @@ class LIST:
     
 class FLAG:
     SCREENSHOT = True #Whether you need screenshot after each of the steps
+    PASSMATCH = 0
+    REAMINMATCH = 0
     
 class INFO:
     STEP=0
