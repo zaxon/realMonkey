@@ -108,6 +108,23 @@ class rMonkeyRunner(object) :
     def sleep(self,s) :
         time.sleep(s)
     
+    def assertExist(self, TAG, value,scrollable=True):
+        try:                
+            FLAG.SCROLLBALE = scrollable 
+            operator = {UIELEMENT.TEXT:lambda:self.__uiselect.text(value),
+                        UIELEMENT.CLASSNAME:lambda:self.__uiselect.className(value),
+                        UIELEMENT.INDEX:lambda:self.__uiselect.index(value),
+                        UIELEMENT.DESC:lambda:self.__uiselect.description(value),
+                        UIELEMENT.SID:lambda:self.__uiselect.sid(value),
+                        }
+            operator[TAG]()
+            self.__record('assertExsit%s_%s SCROLLABLE:%s'%(TAG,value,scrollable),'assertExist')
+
+        except Exception , e:
+            self.device.takeSnapshot('assertExist', self.__scriptPath)
+            self.__reportcoloect.logcolect(picname = INFO.PICNAME,exception='assert:%s'%(e))
+            raise e
+ 
     def __record(self,stepName, picName):
         INFO.STEP += 1
         self.device.takeSnapshot(picName, self.__scriptPath)

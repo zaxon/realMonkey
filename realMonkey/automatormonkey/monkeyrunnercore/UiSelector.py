@@ -141,8 +141,11 @@ class UiSelector(object):
         file = self.ui.pullUiTmp()
         node = self.ui.selectElement(nodeName, nodeValue, file, match)
         if node != None:
+            FLAG.SCROLLBALE = True 
             return UiElement(node)
-        
+        if FLAG.SCROLLBALE == False:
+           FLAG.SCROLLBALE = True 
+           raise AttributeError('%s %s is not found in current screen'%(nodeName , nodeValue))
         elementXml = self.ui.selectElement('scrollable', 'true', file)
         if elementXml != None:
             element=UiElement(elementXml)
@@ -158,35 +161,26 @@ class UiSelector(object):
                     if FLAG.REAMINMATCH != 0:
                         self.device.drag(x, y, toX, toY*2)
                         fileTemp = self.ui.pullUiTmp('temp')
-                        FLAG.PASSMATCH = self.__fileCompare(file, fileTemp)
+                        passMatch = self.__fileCompare(file, fileTemp)
                         
-                        root = self.ui.selectElement('scrollable', 'true', file)
-                        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp) 
-                        rootLen = len(rootTemp.childNodes)
-                        childNode = self.ui.selectChildElement('scrollable', 'true', rootTemp)
-                        if rootLen <= 1 and childNode != None:
-                           root = self.ui.selectChildElement('scrollable', 'true', root)
-                           rootTemp = childNode
+                        root, rootTemp = self.__getListView(file, fileTemp)
                         
-                        if self.ui.selectChildElement(nodeName, nodeValue, root.lastChild) != None:
-                            FLAG.REAMINMATCH += 1
+                        FLAG.REAMINMATCH += self.ui.selectElementCount(nodeName, nodeValue,root.lastChild)
 
-                        for i in range(FLAG.PASSMATCH+1):
+                        for i in range(passMatch+1):
                             rootTemp.removeChild(rootTemp.childNodes[0])
 
                         node = self.ui.selectChildElement(nodeName, nodeValue, rootTemp, FLAG.REAMINMATCH-1)
                         FLAG.REAMINMATCH = 0
                         if node != None:
-                            #print node.toxml().encode('utf-8')
                             return UiElement(node)
                     else:
+                        self.device.drag(x, y, toX, toY)
                         file = self.ui.pullUiTmp()
                         node = self.ui.selectElement(nodeName, nodeValue, file, match)
                         if node != None:
-                            #print node.toxml().encode('utf-8')
                             return UiElement(node)
                 else:
-                    self.device.drag(x, y, toX, toY)
                     rect = element.getVisibleBounds()
                     swipeAreaAdjust = (int)(rect.width() * 0.1);
                     x = rect.right - swipeAreaAdjust
@@ -201,20 +195,20 @@ class UiSelector(object):
                         #print node.toxml().encode('utf-8')
                         return UiElement(node)
                     
-        raise AttributeError('%s %s is not found, please check you condition'%(nodeName , nodeValue))
+        raise AttributeError('%s %s is not found in current screen'%(nodeName , nodeValue))
     
     def __fileCompare(self, file, fileTemp):
         match = 0
-        root = self.ui.selectElement('scrollable', 'true', file)
-        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp)
-
-        rootLen = len(root.childNodes)
-        childNode = self.ui.selectChildElement('scrollable', 'true', root)
-        if rootLen <= 1 and childNode != None:
-            root = childNode
-            rootTemp = self.ui.selectChildElement('scrollable', 'true', rootTemp)
-            rootLen = len(root.childNodes)
-
+#        root = self.ui.selectElement('scrollable', 'true', file)
+#        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp)
+#        rootLen = len(root.childNodes)
+#        childNode = self.ui.selectChildElement('scrollable', 'true', root)
+#        if rootLen <= 1 and childNode != None:
+#            root = childNode
+#            rootTemp = self.ui.selectChildElement('scrollable', 'true', rootTemp)
+#            rootLen = len(root.childNodes)
+        root,rootTemp = self.__getListView(file,fileTemp)
+        
         root.removeChild(root.lastChild)
         rootTemp.removeChild(rootTemp.firstChild)
         rootLen = len(root.childNodes)
@@ -243,3 +237,15 @@ class UiSelector(object):
             strNode = node.toxml()
             strNodeTemp = nodeTemp.toxml()
             return strNode == strNodeTemp
+        
+    def __getListView(self, file, fileTemp):
+        root = self.ui.selectElement('scrollable', 'true', file)
+        rootTemp = self.ui.selectElement('scrollable', 'true', fileTemp)
+        rootLen = len(root.childNodes)
+        childNode = self.ui.selectChildElement('scrollable', 'true', root)
+        if rootLen <= 1 and childNode != None:
+           root = childNode
+           rootTemp = self.ui.selectChildElement('scrollable', 'true', rootTemp)
+
+        return root,rootTemp
+        

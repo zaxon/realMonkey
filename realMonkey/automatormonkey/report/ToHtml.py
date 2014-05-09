@@ -50,7 +50,7 @@ class toHtml(object):
     def bodyHtml(self,filename,step,casename,picname,exception):
         html=open(filename,'a')
         if exception!=None:
-            html.write('<tr><td style=font-weight:bold>异常</td><td style=color:#FF0033>%s</td><td><img height=80 width=60 onmouseover="max(this.id)" onmouseout="min(this.id)" src="%s" id="image%s" /></td></tr>'%(exception,picname,picname))
+            html.write('<tr><td id="exception">异常</td><td style=color:#FF0033>%s</td><td><img height=80 width=60 onmouseover="max(this.id)" onmouseout="min(this.id)" src="%s" id="image%s" /></td></tr>'%(exception,picname,picname))
         else:
             html.write('<tr>')
             html.write('<td width=100px align = center style=font-weight:bold>%s</td>'%step)

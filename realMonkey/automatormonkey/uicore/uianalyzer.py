@@ -192,6 +192,21 @@ class uianalyzer(object) :
         #raise AttributeError('elements  is not found, please check you condition')
         return None
     
+    def selectElementCount(self, nodeName, nodeValue, nodes):
+        '''return element's info of the specified conditions
+        '''
+        flag = 0
+    
+        root = nodes
+        for node in root.getElementsByTagName('node') :
+            try :
+                tmpValue = node.getAttribute(nodeName).encode('utf-8')
+            except Exception , e:
+                print 'xml encode error , please contact with xinjiankang@baidu.com | wuqiaomin@baidu.com'
+            if tmpValue == nodeValue:
+                flag += 1
+        return flag
+    
     
     def pullUiTmp(self, tempStr='') :
         '''

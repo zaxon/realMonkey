@@ -3,6 +3,7 @@ class UIELEMENT:
     CLASSNAME = 'ClassName'
     INDEX = 'Index'
     DESC = 'Description'
+    SID = 'resource-id'
     
 class DIRECTION:
     UP = 'Up'
@@ -15,8 +16,8 @@ class LIST:
     
 class FLAG:
     SCREENSHOT = True #Whether you need screenshot after each of the steps
-    PASSMATCH = 0
     REAMINMATCH = 0
+    SCROLLBALE = True
     
 class INFO:
     STEP=0
