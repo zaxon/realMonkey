@@ -174,6 +174,7 @@ class UiSelector(object):
                         FLAG.REAMINMATCH = 0
                         if node != None:
                             return UiElement(node)
+                        raise AttributeError('%s %s is not found in current screen'%(nodeName , nodeValue))
                     else:
                         self.device.drag(x, y, toX, toY)
                         file = self.ui.pullUiTmp()
