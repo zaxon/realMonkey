@@ -3,7 +3,10 @@
     @author xinjiankang|wuqiaomin in 20140414
 '''
 import time
+import traceback
+import copy
 import inspect, os, sys,shutil
+import platform
 from automatormonkey.monkeyrunnercore.action.Drag import drag
 from automatormonkey.monkeyrunnercore.action.Click import click
 from automatormonkey.monkeyrunnercore.MonkeyDevice import MonkeyDevice
@@ -16,129 +19,216 @@ from automatormonkey.monkeyrunnercore.action.AdbCommand import AdbCommand
 
 class rMonkeyRunner(object) :
 
-    def __init__(self, scriptPath) :
+    def __init__(self, scriptPath, devicesList='1') :
         print 'initializing...'
-        
+        self.t = time.time()
+        INFO.SYSTEM = platform.system()
+        if INFO.SYSTEM.find('Windows')>=0:
+            INFO.GREP = 'findstr'
+
         self.device = MonkeyDevice()
-        self.__adbCmd = AdbCommand()
-        
-        
-        self.__reportcoloect = None
-        
-        INFO.DEVICE = self.__adbCmd.getDeviceSerial()
-        INFO.DEVICENAME = self.__adbCmd.getSystemProp('ro.product.model')
+        self.__adbCmd = AdbCommand()        
+        self.__reportList = []
 
-        self.__scriptPath = '%s_%s' %(scriptPath[0:len(scriptPath)-3],INFO.DEVICENAME)
+        self.__devicesList = self.__adbCmd.getDeviceSerial(devicesList)
+        self.__deviceNameList = self.__adbCmd.getDeviceNameList(self.__devicesList)
+        self.__scriptPath = '%s' %(scriptPath[0:len(scriptPath)-3])
+        self.__logPathList = self.__adbCmd.getLogPathList(self.__scriptPath, self.__deviceNameList)
         
-        self.make_dir(self.__scriptPath)
-        self.__reportcoloect = reportcoloect(self.__scriptPath)
-
+        for i in self.__logPathList:
+            self.make_dir(i)
+            temp = reportcoloect(i)
+            self.__reportList.append(temp)
+            
         self.__uiselect = UiSelector(self.device)
-        self.__systemInfo = SystemProperty(self.__uiselect)
+        self.__systemInfo = SystemProperty(self.__adbCmd)
         self.__click = click(self.device, self.__uiselect)
         self.__drag = drag(self.device, self.__systemInfo)
-        
-        print 'Start Case %s...' % (scriptPath)
+        print 'Start Case %s...\n' % (scriptPath)
     
     def click(self,TAG,value, match=None):
-        try:                
-            operator = {UIELEMENT.TEXT:lambda:self.__click.text(value, match),
-                        UIELEMENT.CLASSNAME:lambda:self.__click.className(value, match),
-                        UIELEMENT.INDEX:lambda:self.__click.index(value, match),
-                        UIELEMENT.DESC:lambda:self.__click.description(value, match),
+        INFO.STEP += 1
+        tempDevices = copy.copy(self.__devicesList)
+        tempDeviceName = copy.copy(self.__deviceNameList)
+        tempReport = copy.copy(self.__reportList)
+        tempLogPath = copy.copy(self.__logPathList)
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            try:
+                operator = {UIELEMENT.TEXT:lambda:self.__click.text(value, match),
+                            UIELEMENT.CLASSNAME:lambda:self.__click.className(value, match),
+                            UIELEMENT.INDEX:lambda:self.__click.index(value, match),
+                            UIELEMENT.DESC:lambda:self.__click.description(value, match),
+                            }
+                operator[TAG]()
+                self.__record('ClickBy%s_%s'%(TAG,value),'click',i)
+            except Exception , e:
+                self.device.takeSnapshot('click', self.__logPathList[i])
+                self.__reportList[i].logcolect(picname = INFO.PICNAME,exception=traceback.format_exc())
+                self.__reportList[i].logcolect(flag='end')
+                try:
+                    tempDevices.remove(INFO.DEVICE)
+                    tempDeviceName.remove(INFO.DEVICENAME)
+                    tempReport.remove(self.__reportList[i])
+                    tempLogPath.remove(self.__logPathList[i])
+                    traceback.print_exc()
+                except:
+                    print '\n'
+                    pass
+        self.__devicesList = tempDevices 
+        self.__deviceNameList = tempDeviceName
+        self.__reportList = tempReport
+        self.__logPathList = tempLogPath
+
+    def drag(self,TAG):
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            operator = {DIRECTION.UP:lambda:self.__drag.up(),
+                        DIRECTION.DOWN:lambda:self.__drag.down(),
+                        DIRECTION.LEFT:lambda:self.__drag.left(),
+                        DIRECTION.RIGHT:lambda:self.__drag.right(),
                         }
             operator[TAG]()
-            self.__record('ClickBy%s_%s'%(TAG,value),'click')
-
-        except Exception , e:
-            self.device.takeSnapshot('click', self.__scriptPath)
-            self.__reportcoloect.logcolect(picname = INFO.PICNAME,exception=e)
-            raise e
-        
-    def clickMultCondition(self,mtext=None,mclassName=None,mindex=None):
-        try:
-            self.__click.multCondition(text=mtext,className=mclassName,index=mindex)
-            self.__record('clickMultCondition','click')
-        except Exception , e:
-            self.device.takeSnapshot('click', self.__scriptPath)
-            self.__reportcoloect.logcolect(picname = INFO.PICNAME,exception=e)
-            raise e
-        
-    def drag(self,TAG):
-        operator = {DIRECTION.UP:lambda:self.__drag.up(),
-                    DIRECTION.DOWN:lambda:self.__drag.down(),
-                    DIRECTION.LEFT:lambda:self.__drag.left(),
-                    DIRECTION.RIGHT:lambda:self.__drag.right(),
-                    }
-        operator[TAG]()
-        self.__record('drag_%s'%(TAG),'drag')
+            self.__record('drag_%s'%(TAG),'drag',i)
 
     def install(self,apkPath):
-        self.device.installPackage(apkPath)
-        self.__record('install %s'%(apkPath), 'install')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            self.device.installPackage(apkPath)
+            self.__record('install %s'%(apkPath), 'install',i)
     
     def uninstall(self, packageName):
-        self.device.removePackage(packageName)
-        self.__record('uninstall %s'%(packageName), 'uninstall')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            self.device.uninstallPackage(packageName)
+            self.__record('uninstall %s'%(packageName), 'uninstall',i)
         
     def clickxy(self,x,y):
-        self.device.touch(x,y)
-        self.__record('clickxy_%s,%s'%(x,y), 'clickxy')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+
+            self.device.touch(x,y)
+            self.__record('clickxy_%s,%s'%(x,y), 'clickxy',i)
         
     def shell(self,cmd):
-        self.device.shell(cmd)
-        self.__record('shell_%s'%(cmd), 'shell')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+
+            self.device.shell(cmd)
+            self.__record('shell_%s'%(cmd), 'shell',i)
         
     def dragxy(self, x,y,toX,toY,duration=''):
-        self.device.drag(x,y,toX,toY,duration)
-        self.__record('dragxy_%s,%s,%s,%s'%(x,y,toX,toY),'dragxy')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+
+            self.device.drag(x,y,toX,toY,duration)
+            self.__record('dragxy_%s,%s,%s,%s'%(x,y,toX,toY),'dragxy',i)
         
     def input(self,text):
-        self.device.input(text)
-        self.__record('input_%s'%(text),'input')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+        
+            self.device.input(text)
+            self.__record('input_%s'%(text),'input',i)
     
     def press(self,keycode):
-        self.device.press(keycode)
-        self.__record('press_%s'%(keycode),'press')
-        
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            self.device.press(keycode)
+            self.__record('press_%s'%(keycode),'press',i)
+            
     def startActivity(self,component=""):
-        self.device.startActivity(component)
-        self.__record('startActivity_%s'%(component),'startActivity')
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
 
-    def sleep(self,s) :
+            self.device.startActivity(component)
+            self.__record('startActivity_%s'%(component),'startActivity',i)
+
+    def sleep(self,s):
         time.sleep(s)
     
     def assertExist(self, TAG, value,scrollable=True):
-        try:                
-            FLAG.SCROLLBALE = scrollable 
-            operator = {UIELEMENT.TEXT:lambda:self.__uiselect.text(value),
-                        UIELEMENT.CLASSNAME:lambda:self.__uiselect.className(value),
-                        UIELEMENT.INDEX:lambda:self.__uiselect.index(value),
-                        UIELEMENT.DESC:lambda:self.__uiselect.description(value),
-                        UIELEMENT.SID:lambda:self.__uiselect.sid(value),
-                        }
-            operator[TAG]()
-            self.__record('assertExsit%s_%s SCROLLABLE:%s'%(TAG,value,scrollable),'assertExist')
-
-        except Exception , e:
-            self.device.takeSnapshot('assertExist', self.__scriptPath)
-            self.__reportcoloect.logcolect(picname = INFO.PICNAME,exception='assert:%s'%(e))
-            raise e
- 
-    def __record(self,stepName, picName):
         INFO.STEP += 1
-        self.device.takeSnapshot(picName, self.__scriptPath)
-        self.__reportcoloect.logcolect(INFO.STEP,stepName,INFO.PICNAME)
+        tempDevices = copy.copy(self.__devicesList)
+        tempDeviceName = copy.copy(self.__deviceNameList)
+        tempReport = copy.copy(self.__reportList)
+        tempLogPath = copy.copy(self.__logPathList)
+        
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            try:                
+                FLAG.SCROLLBALE = scrollable 
+                operator = {UIELEMENT.TEXT:lambda:self.__uiselect.text(value),
+                            UIELEMENT.CLASSNAME:lambda:self.__uiselect.className(value),
+                            UIELEMENT.INDEX:lambda:self.__uiselect.index(value),
+                            UIELEMENT.DESC:lambda:self.__uiselect.description(value),
+                            UIELEMENT.SID:lambda:self.__uiselect.sid(value),
+                            }
+                operator[TAG]()
+                self.__record('assertExsit%s_%s SCROLLABLE:%s'%(TAG,value,scrollable),'assertExist',i)
+
+            except Exception , e:
+                self.device.takeSnapshot('assertExist', self.__scriptPath)
+                self.__reportList[i].logcolect(picname = INFO.PICNAME,exception='assert:%s'%(e))
+                self.__reportList[i].logcolect(flag='end')
+                try:
+                    tempDevices.remove(INFO.DEVICE)
+                    tempDeviceName.remove(INFO.DEVICENAME)
+                    tempReport.remove(self.__reportList[i])
+                    tempLogPath.remove(self.__logPathList[i])
+                    traceback.print_exc()
+                except:
+                    pass
+        self.__devicesList = tempDevices 
+        self.__deviceNameList = tempDeviceName
+        self.__reportList = tempReport
+        self.__logPathList = tempLogPath
+                
+                
+ 
+    def __record(self,stepName, picName,index=0):
+        self.device.takeSnapshot(picName, self.__logPathList[index])
+        self.__reportList[index].logcolect(INFO.STEP,stepName,INFO.PICNAME)
 
     def getProperty(self,TAG):
-        operator = {PROPERTY.DISPLAYWIDTH:lambda:self.__systemInfo.displayWidth(),
-                    PROPERTY.DISPLAYHEIGHT:lambda:self.__systemInfo.displayHeight(),
-                    PROPERTY.CURRENTPACKAGE:lambda:self.__systemInfo.currentPackageName(),
-                    }
-        operator[TAG]()
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+
+            operator = {PROPERTY.DISPLAYWIDTH:lambda:self.__systemInfo.displayWidth(),
+                        PROPERTY.DISPLAYHEIGHT:lambda:self.__systemInfo.displayHeight(),
+                        PROPERTY.CURRENTPACKAGE:lambda:self.__systemInfo.currentActivityName(),
+                        }
+            operator[TAG]()
     
     def takeSnapshot(self,picName):
-        self.device.takeSnapshot(picName, self.__scriptPath)
+        INFO.STEP += 1
+        for i in range(len(self.__devicesList)):
+            INFO.DEVICE = self.__devicesList[i]
+            INFO.DEVICENAME=self.__deviceNameList[i]
+            self.device.takeSnapshot(picName, self.__logPathList[i])
+            self.__reportList[index].logcolect(INFO.STEP,'takeSnapshot',INFO.PICNAME)
     
     def make_dir(self,path):
         try:
@@ -152,11 +242,12 @@ class rMonkeyRunner(object) :
                 
         
     def __del__(self):
-        if self.__reportcoloect != None:
-            self.__reportcoloect.logcolect(flag='end')
-            print 'End Case...'
-        if INFO.PATH != None:  
-            if os.path.exists(INFO.PATH):
-                os.remove(INFO.PATH)
+        if self.__reportList != []:
+            for i in range(len(self.__devicesList)):
+                INFO.DEVICE = self.__devicesList[i]
+                INFO.DEVICENAME=self.__deviceNameList[i]
+                self.__reportList[i].logcolect(flag='end')
+        print time.time()-self.t
+        print '\n\nEnd Case...'
         
     

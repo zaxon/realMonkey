@@ -174,7 +174,7 @@ class UiSelector(object):
                         FLAG.REAMINMATCH = 0
                         if node != None:
                             return UiElement(node)
-                        raise AttributeError('%s %s is not found in current screen'%(nodeName , nodeValue))
+                        raise AttributeError('%s %s is not found in %s\'s current screen'%(nodeName , nodeValue, INFO.DEVICENAME))
                     else:
                         self.device.drag(x, y, toX, toY)
                         file = self.ui.pullUiTmp()
@@ -196,7 +196,7 @@ class UiSelector(object):
                         #print node.toxml().encode('utf-8')
                         return UiElement(node)
                     
-        raise AttributeError('%s %s is not found in current screen'%(nodeName , nodeValue))
+        raise AttributeError('%s %s is not found in %s\'s current screen'%(nodeName , nodeValue, INFO.DEVICENAME))
     
     def __fileCompare(self, file, fileTemp):
         match = 0

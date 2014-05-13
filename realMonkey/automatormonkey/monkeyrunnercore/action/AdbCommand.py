@@ -5,6 +5,7 @@
 import os,sys,tempfile
 import subprocess
 import time
+import argparse
 from automatormonkey.monkeyrunnercore.info.Enum import *
 
 reload(sys)
@@ -27,13 +28,13 @@ class AdbCommand(object):
         '''
         '''
         cmd = 'rm %s' %(filePath)
-        self.__adbShell(cmd)
+        self.adbShell(cmd)
 
     def createDir(self,path):
         '''
         '''
         cmd='mkdir %s'%(path)
-        self.__adbShell(cmd)
+        self.adbShell(cmd)
     
     def touch(self, x, y):
         self.__adbShellInput('tap %s %s'%(x, y))
@@ -48,12 +49,12 @@ class AdbCommand(object):
         self.__adbShellInput('keyevent %s'%(keycode))
 
     def startActivity(self, component=""):
-        self.__adbShell('am start -n %s'%(component))
+        self.adbShell('am start -n %s'%(component))
         
     def takeSnapshot(self, saveName, savePath):
         count=1
         if FLAG.SCREENSHOT == True:
-            self.__adbShell('/system/bin/screencap -p /sdcard/temp.png')
+            self.adbShell('/system/bin/screencap -p /sdcard/temp.png')
             self.pull('/sdcard/temp.png', savePath)
             
             filename = '%s%stemp.png'%(savePath,os.sep)
@@ -67,7 +68,7 @@ class AdbCommand(object):
             os.rename(filename,newname)  
     
     def getSystemProp(self, value):
-        p = self.__adbShell('getprop %s' %(value))
+        p = self.adbShell('getprop %s' %(value))
         str = p.stdout.readlines()
         return str[0].split('\r')[0].strip().replace(' ','_')
     
@@ -78,10 +79,10 @@ class AdbCommand(object):
         self.__runshell('adb -s %s uninstall %s'%(INFO.DEVICE, packageName))
 
     def shell(self,cmd):
-        self.__runshell(cmd)
+        return self.__runshell(cmd)
         
     def uidump(self, filePath):
-        self.__adbShell('uiautomator dump %s' %(filePath))
+        self.adbShell('uiautomator dump %s' %(filePath))
 
     def __runshell(self,cmd):
         #print cmd
@@ -101,28 +102,78 @@ class AdbCommand(object):
         return sub2
 
     def __adbShellInput(self,cmd):
-        self.__adbShell('input %s'%(cmd))
+        return self.adbShell('input %s'%(cmd))
         
-    def __adbShell(self, cmd):
+    def adbShell(self, cmd):
         return self.__runshell('adb -s %s shell %s'%(INFO.DEVICE,cmd))
 
-    def getDeviceSerial(self):
+#    def _getDeviceSerial(self):
+#        p = self.__runshell('adb devices')
+#        deviceList = p.stdout.readlines()
+#        deviceList.pop(len(deviceList)-1)
+#        deviceList.pop(0)
+#        for i in deviceList:
+#            i = i.split('\t')[0]
+#            INFO.PATH = '%s%s%s' %(self.__path(),os.sep,i)
+#            #print INFO.PATH
+#            if os.path.exists(INFO.PATH) == False:
+#                f = file(INFO.PATH,'w')
+#                f.close()
+#                #print i
+#                return i
+#        print 'Please check you have idle device!!!'
+#        sys.exit(1)
+        
+    def getDeviceSerial(self, devices):
+        '''
+        '''
         p = self.__runshell('adb devices')
         deviceList = p.stdout.readlines()
         deviceList.pop(len(deviceList)-1)
         deviceList.pop(0)
+        if len(deviceList)== 0:
+            print 'device not found'
+            sys.exit(1)
+        deviceTemp = []
         for i in deviceList:
-            i = i.split('\t')[0]
-            INFO.PATH = '%s%s%s' %(self.__path(),os.sep,i)
-            #print INFO.PATH
-            if os.path.exists(INFO.PATH) == False:
-                f = file(INFO.PATH,'w')
-                f.close()
-                #print i
-                return i
-        print 'Please check you have idle device!!!'
-        sys.exit(1)
+            if i.find('device')>=0:
+                deviceTemp.append(i.split('\t')[0].strip())
+        deviceList = deviceTemp
+        serialList = []
+        tempList = list(set(devices))
+        for i in tempList:
+            if len(i)==1:
+                if int(i)<=len(deviceList):
+                    serialList.append(deviceList[int(i)-1])
+                continue
+            for j in deviceList:
+                j = j.split('\t')[0].strip()
+                if j==i.strip():
+                    serialList.append(j)
+                    break
+        if len(serialList)==0:
+            print 'device not found or device offline'
+            sys.exit(1)
+        serialList = list(set(serialList))
+        return serialList
+      
+    def getDeviceNameList(self, devicesList):
+        '''
+        '''
+        deviceNameList = []
+        for i in devicesList:
+            INFO.DEVICE = i
+            deviceNameList.append(self.getSystemProp('ro.product.model'))
+        return deviceNameList
 
+    def getLogPathList(self,scriptPath, devicesNameList):
+        '''
+        '''
+        logList = []
+        for i in devicesNameList:
+            logList.append('%s_%s'%(scriptPath, i))
+        return logList
+      
     def __deletefiles(self,src):
         '''delete files and folders'''
         if os.path.isfile(src):

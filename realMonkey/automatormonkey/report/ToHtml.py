@@ -4,6 +4,7 @@
 '''
 import os
 import xml.dom.minidom
+import time
 from xml.etree import ElementTree
 
 class toHtml(object):
@@ -11,6 +12,7 @@ class toHtml(object):
     #生成html头部
     def headHtml(self,filename,scriptPath):
         if os.path.exists(scriptPath) == False:
+            time.sleep(3.0)
             os.makedirs(scriptPath)
         html=open(filename,'w')
         html.write("""

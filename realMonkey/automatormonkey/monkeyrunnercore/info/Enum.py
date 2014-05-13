@@ -25,7 +25,8 @@ class INFO:
     DEVICENAME = None
     PATH = None
     PICNAME = None
-    
+    SYSTEM = 'Windows'
+    GREP = 'grep'
 
 class PROPERTY:
     DISPLAYWIDTH = 'displayWidth'
