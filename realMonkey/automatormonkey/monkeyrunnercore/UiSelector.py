@@ -246,7 +246,7 @@ class UiSelector(object):
         rootLen = len(node1.childNodes)
         for i in range(rootLen):
             if self.__nodeCompare(node1.childNodes[rootLen-i-1],node2.childNodes[0]) == True:
-                return i+2
+                return i+1
             
         return 0
 

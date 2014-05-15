@@ -43,7 +43,7 @@ class rMonkeyRunner(object) :
         self.__uiselect = UiSelector(self.device)
         self.__systemInfo = SystemProperty(self.__adbCmd)
         self.__click = click(self.device, self.__uiselect)
-        self.__drag = drag(self.device, self.__systemInfo)
+        self.__drag = drag(self.device, self.__uiselect,self.__systemInfo)
         print 'Start Case %s...\n' % (scriptPath)
     
     def click(self,TAG,value, match=None):

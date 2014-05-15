@@ -14,7 +14,7 @@ device.startActivity('com.dragon.android.pandaspace/.main.MainActivity')
 #device.press('KEYCODE_HOME')
 #device.click(UIELEMENT.TEXT,'百度')
 #device.press('KEYCODE_HOME')
-device.click(UIELEMENT.TEXT,'下载',8)
+device.click(UIELEMENT.TEXT,'下载',20)
 #device.sleep(1)
 #device.startActivity(component="com.baidu.shucheng91/com.baidu.shucheng91.home.ShuCheng")
 
