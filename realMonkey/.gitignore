@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.xml
 test.py
 *.pyc
@@ -6,3 +7,11 @@ mytest.py
 *_*_*
 *.png
 *.html
+=======
+*.png
+*.xml
+*.pyc
+*.class
+*.html
+mytest.py
+>>>>>>> anotherway

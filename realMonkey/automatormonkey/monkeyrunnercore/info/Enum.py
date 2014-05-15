@@ -19,6 +19,10 @@ class FLAG:
     REAMINMATCH = 0
     SCROLLBALE = True
     
+    RLVMODE = False
+    SEARCH = 'Search'
+    DRAG = 'Drag'
+    
 class INFO:
     STEP=0
     DEVICE = None

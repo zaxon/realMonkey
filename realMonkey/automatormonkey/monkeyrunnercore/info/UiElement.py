@@ -58,7 +58,7 @@ class UiElement(object):
                     else:
                        break;
             except Exception , e:
-                print 'xml encode error , please contact with xinjiankang@baidu.com | wuqiaomin@baidu.com'
+                print 'xml encode error , please contact with wuqiaomin@baidu.com'
             if flag>=count:
                # print node.toxml().encode('utf-8')
                 return UiElement(node)

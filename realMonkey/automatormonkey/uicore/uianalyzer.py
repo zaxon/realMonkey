@@ -169,6 +169,9 @@ class uianalyzer(object) :
                 flag += 1
         #raise AttributeError('elements  is not found, please check you condition')
         return None
+
+    def getUiRoot(self,file) :
+        return xml.dom.minidom.parse(file).childNodes[0]
     
     def selectChildElement(self, nodeName, nodeValue, nodes, match=None):
         '''return element's info of the specified conditions
@@ -184,7 +187,7 @@ class uianalyzer(object) :
             try :
                 tmpValue = node.getAttribute(nodeName).encode('utf-8')
             except Exception , e:
-                print 'xml encode error , please contact with xinjiankang@baidu.com | wuqiaomin@baidu.com'
+                print 'xml encode error'
             if tmpValue == nodeValue:
                 if flag == matchTmp:
                     return node
