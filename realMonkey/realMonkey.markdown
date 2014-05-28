@@ -1,40 +1,36 @@
 # realMonkey
 
-标签（空格分隔）： android uiautomator test
-
----
-
-realMonkey是一个轻量级的、跨平台运行的、基于uiautomator的android自动化测试工具，使用Python语言编写测试脚本，运行于android4.1以上的设备。
-#优势
- - 不需要修改App的任何东西
- - 多平台编写、运行测试用例
- - 开源的
- - 跨应用
- - 不用编译
-# 如何使用
-确保你的PC已经配置好了android sdk和python开发环境
-获取realMonkey，放置于PC上的任意位置
-*注意：路径最好不要带中文*
-
-下载地址：https://github.com/zaxon/realMonkey
-### 编写测试脚本
-```python
-#testCase.py
-import os,sys
-sys.path.append(r'E:\realMonkey') #这是realMonkey在PC上的位置
-from automatormonkey.monkeyrunnercore.MonkeyRunner import rMonkeyRunner
-from automatormonkey.monkeyrunnercore.info.Enum import *
-
-deviceName=['1','VVA5C3'] #选择回放脚本的设备
-device=rMonkeyRunner(__file__,deviceName)
-
-device.click(UIELEMENT.TEXT, '关闭')
-device.sleep(5.0)
-device.drag(DIRECTION.RIGHT)
-```
-### 回放脚本
-    $ python testCase.py
+标签（空格分隔）： android uiautomator test python
 
 
+realMonkey is an open source, lightweight, cross-platform test automation tool base on uiautomator for mobile apps, tested on emulators(Android) and real devices(Android)
 
+# Supported Platforms
+ - Android
+
+#Why realMonkey?
+1. You don't have to recomplie your app or modify it in any way, due to use of standard automation APIs on all platforms.
+2. You can write tests with your favorite dev tools using [Python](https://www.python.org/download/) language
+3. You can test multiple applications in one script
+
+Normal, if use robotium library to write your test case without realMonkey.Then, you must modify your app's signature and compile your test case.Similarly, with Android's uiautomator you have to accept that tedious debugging process.realMonkey opens up the possibility of quickly and simply.Finally!
+
+# Requirements
+When use realMonkey, you don't need to do a lot of complicated settings.See below for environment setting.
+
+If you want to write and run test case with realMonkey, you only need to install [Android SDK](http://developer.android.com/sdk/index.html) and [Python](https://www.python.org/download/)(recommend 2.7)
+
+### Android Requirements
+ - [Android SDK](http://developer.android.com/sdk/index.html) API>=16
+ - realMonkey supports Android on OSX, Linux and Windows. Make sure you setting up your environment properly for testing on different OSes.
+
+# Quick Start
+Make sure you have already configured the development environment.
+
+    $ python your/realMonkey/path/test.py
+# How It Works
+realMonkey depend on adb interact with the device, which is based mainly on Android's uiautomator
+# Mailing List
+If you have any proplem when you use.
+*Contact us: realMonkeyWQM@163.com*
 
