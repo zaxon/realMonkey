@@ -1,8 +1,5 @@
 # realMonkey
 
-标签（空格分隔）： android uiautomator test python
-
-
 realMonkey is an open source, lightweight, cross-platform test automation tool base on uiautomator for mobile apps, tested on emulators(Android) and real devices(Android)
 
 # Supported Platforms
