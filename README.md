@@ -2,9 +2,6 @@
 
 realMonkey is an open source, lightweight, cross-platform test automation tool base on uiautomator for mobile apps, tested on emulators(Android) and real devices(Android)
 
-# Supported Platforms
- - Android
-
 #Why realMonkey?
 1. You don't have to recomplie your app or modify it in any way, due to use of standard automation APIs on all platforms.
 2. You can write tests with your favorite dev tools using [Python](https://www.python.org/download/) language
@@ -22,7 +19,7 @@ If you want to write and run test case with realMonkey, you only need to install
  - realMonkey supports Android on OSX, Linux and Windows. Make sure you setting up your environment properly for testing on different OSes.
 
 # Quick Start
-Make sure you have already configured the development environment.
+Make sure you have already add the [adb](http://developer.android.com/tools/help/adb.html) to the PATH environment variable
 
     $ python your/realMonkey/path/test.py
 # How It Works
