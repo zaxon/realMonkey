@@ -145,7 +145,7 @@ class rMonkeyRunner(object) :
             INFO.DEVICE = self.__devicesList[i]
             INFO.DEVICENAME=self.__deviceNameList[i]
             self.device.takeSnapshot(picName, self.__logPathList[i])
-            self.__reportList[index].logcolect(INFO.STEP,'takeSnapshot',INFO.PICNAME)
+            self.__reportList[i].logcolect(INFO.STEP,'takeSnapshot',INFO.PICNAME)
     
     
     def click(self,TAG,value, match=None):
