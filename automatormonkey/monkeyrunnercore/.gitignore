@@ -3,6 +3,6 @@ test.py
 *.pyc
 *.class
 mytest.py
-*_*_*
 *.png
 *.html
+*.pyo
