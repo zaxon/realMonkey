@@ -26,5 +26,5 @@ Make sure you have already add the [adb](http://developer.android.com/tools/help
 realMonkey depend on adb interact with the device, which is based mainly on Android's uiautomator
 # Mailing List
 If you have any proplem when you use.
-*Contact us: realMonkeyWQM@163.com*
+*Contact us: realMonkeyWQM@gmail.com, xinjiankang@baidu.com*
 
