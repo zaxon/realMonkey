@@ -11,7 +11,6 @@ class SystemProperty(object):
         self.adbCmd = AdbCommand()
 
     def currentActivityName(self):
-        time.sleep(2.0)
         sub = self.adbCmd.adbShell('dumpsys window -a|%s mCurrentFocus'%(INFO.GREP))
         strList = sub.stdout.readlines()
         strTemp = strList[len(strList)-1]

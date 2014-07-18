@@ -3,13 +3,14 @@ class UIELEMENT:
     CLASSNAME = 'ClassName'
     INDEX = 'Index'
     DESC = 'Description'
-    SID = 'resource-id'
+    SID = 'Resource-id'
+    ENABLE = 'Enabled'
     
 class DIRECTION:
-    UP = 'Up'
-    DOWN = 'Down'
-    LEFT = 'Left'
-    RIGHT = 'Right'
+    UP = 'up'
+    DOWN = 'down'
+    LEFT = 'left'
+    RIGHT = 'rsight'
     
 class LIST:
     VERTICAL = True #vertical found element or horizontal found element
@@ -27,8 +28,10 @@ class INFO:
     STEP=0
     DEVICE = None
     DEVICENAME = None
+    DEVICEVERSION = None
     PATH = None
     PICNAME = None
+    
     SYSTEM = 'Windows'
     GREP = 'grep'
 

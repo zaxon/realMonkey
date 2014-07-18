@@ -130,8 +130,13 @@ class uianalyzer(object) :
             if tmpValue == nodeValue:
                 elementsList.append(node)
         return elementsList
-        
     
+    def getAllElements(self, nodes):
+        elementsList = []
+        root = nodes
+        elementsList = root.getElementsByTagName('node')
+        return elementsList
+        
     def selectElementCount(self, nodeName, nodeValue, nodes):
         '''return element's info of the specified conditions
         '''

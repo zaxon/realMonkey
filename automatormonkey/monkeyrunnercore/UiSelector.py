@@ -15,7 +15,7 @@ class UiSelector(object):
     def __init__(self, device):
         self.ui = uianalyzer()
         self.device = device
-    
+        
     def text(self,text, match=None):
         return self.__findElement('text',text, match)
     
@@ -48,7 +48,28 @@ class UiSelector(object):
     
     def packageName(self, packageName, match=None):
         return self.__findElement('packageName', packageName, match)
+
+    def bound(self, bounds, match=None):
+        return self.__findElement('bounds', bounds, match)
    
+    def getElementList(self, nodeName, nodeValue):
+        file = self.ui.pullUiTmp('tmp')
+        nodes = self.ui.getUiRoot(file)
+        element = []
+        for node in self.ui.getElementsList(nodeName, nodeValue, nodes):
+            element.append(UiElement(node))
+        if element == []:
+            raise AttributeError('%s %s is not found in %s\'s current screen'%(nodeName , nodeValue, INFO.DEVICENAME))
+        return element
+
+    def getAllElements(self):
+        file = self.ui.pullUiTmp('tmp')
+        nodes = self.ui.getUiRoot(file)
+        elements = []
+        for node in self.ui.getAllElements(nodes):
+            elements.append(UiElement(node))
+        return elements
+        
     def multCondition(self,mtext=None,msid=None,mcclass=None,mindex=None):
         '''return element's info of the specified conditions 
         you can use multi-condition to get
@@ -67,6 +88,7 @@ class UiSelector(object):
         scrollableNode = self.__getListView(file)
 
         if scrollableNode ==None :
+            #print 'scrollableNode'
             return
 
         if RealListView.Content==None:
@@ -86,7 +108,7 @@ class UiSelector(object):
         '''
         node = self.ui.selectChildElement(nodeName, nodeValue, RealListView.Content,match)
         if node ==None:
-            for i in range(0,10):
+            for i in range(0,15):
                 self.__mdrag(True,UiElement(RealListView.Content))
                 self.listViewConstructor()
                 node = self.ui.selectChildElement(nodeName,nodeValue,RealListView.Content,match)
@@ -102,14 +124,18 @@ class UiSelector(object):
         file = self.ui.pullUiTmp('tmp')
         node = self.ui.selectElement(nodeName, nodeValue, file, match)
         if node != None:
+            FLAG.RLVMODE = False
+            RealListView.Content=None
+            FLAG.SCROLLBALE = True
             return UiElement(node)
-        
+        #raise AttributeError(u'%s %s is not found in %s\'s current screen'%(nodeName , nodeValue, INFO.DEVICENAME))        
         if RealListView.Content != None :
             #print 'enter RLVMODE'
             self.listViewConstructor()
             node = self.__findElementInRLVMODE(nodeName,nodeValue,match)
             FLAG.RLVMODE = False
             RealListView.Content=None
+            FLAG.SCROLLBALE = True
             return UiElement(node)
         else :
             #file = self.ui.pullUiTmp('tmp')
@@ -156,9 +182,9 @@ class UiSelector(object):
         if vertical==True :
             swipeAreaAdjust = (int)(rect.height() * 0.1);
             x = rect.right/2
-            y = rect.bottom - swipeAreaAdjust
+            y = (rect.bottom+rect.top)/2
             toX = rect.right/2
-            toY = rect.top + swipeAreaAdjust
+            toY = rect.top/2  
         else :
             swipeAreaAdjust = (int)(rect.width() * 0.1);
             x = rect.right - swipeAreaAdjust
@@ -168,9 +194,9 @@ class UiSelector(object):
         self.device.drag(x, y, toX, toY*2)
 
     def __realgetSameNodeNum(self, node1, node2):
-
-        node1.removeChild(node1.childNodes[len(node1.childNodes)-1])
-        node2.removeChild(node2.childNodes[0])
+        if(len(node2.childNodes)>1):
+            node1.removeChild(node1.childNodes[len(node1.childNodes)-1])
+            node2.removeChild(node2.childNodes[0])
         rootLen = len(node1.childNodes)
         for i in range(rootLen):
             if self.__nodeCompare(node1.childNodes[rootLen-i-1],node2.childNodes[0]) == True:
@@ -229,7 +255,7 @@ class UiSelector(object):
                     listNode.setAttribute('bounds', nodeList[i].getAttribute('bounds'))
                     return listNode
                 if len(listNode.childNodes) == 0:
-                    return None
+                    return nodeList[i]
         return listNode    
 
         

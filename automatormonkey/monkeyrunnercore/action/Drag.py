@@ -5,11 +5,13 @@
 #from automatormonkey.monkeyrunnercore.info.SystemProperty import SystemProperty
 from automatormonkey.monkeyrunnercore.info.Enum import *
 from automatormonkey.monkeyrunnercore.utils.RealListView import *
+from automatormonkey.monkeyrunnercore.UiAutomator import *
 
 class drag(object):
     def __init__(self, device, uiselect, systemInfo):
         self.device = device
         self.uiselect = uiselect
+        self.uiautomatorDevice=UiautomatorDevice()
 
         self.systemInfo = systemInfo
         self.displayHeight=0
@@ -21,11 +23,11 @@ class drag(object):
     def up(self):
         self.__getWH()
         #get current uiautomator and dump to tmp when drag hanppens , clear it when Click or long Click hanppens
-        self.__drag(self.displayWidth/2, (self.displayHeight/5)*3, self.displayWidth/2, (self.displayHeight/100),DIRECTION.UP)
+        self.__drag(self.displayWidth/2, (self.displayHeight/5)*3, self.displayWidth/2, 0,DIRECTION.UP)
         
     def down(self):
         self.__getWH()
-        self.__drag(self.displayWidth/2, (self.displayHeight/5)*2, self.displayWidth/2, (self.displayHeight/100)*99,DIRECTION.DOWN)
+        self.__drag(self.displayWidth/2, (self.displayHeight/5)*2, self.displayWidth/2, self.displayHeight,DIRECTION.DOWN)
             
     def left(self, duration=''):
         self.__getWH()
@@ -44,7 +46,7 @@ class drag(object):
         else :
             FLAG.RLVMODE = False
             RealListView.Content=None
-        self.device.drag(x, y, toX, toY,durations);
+        self.uiautomatorDevice.swipexy(x, y, toX, toY,10);
 
     def __getWH(self):
         self.displayHeight = int(self.systemInfo.displayHeight())

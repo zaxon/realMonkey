@@ -59,11 +59,13 @@ class ToSummaryHtml(object):
             self.getSummaryHtml(curpath,'%s\sumHtml.html'%curpath,total,_success,_fail,failCase,device)
         for device in devices:
             dic={}
+            dicf={}
             for key in dictcontent.keys():
                 if device in key:
                     dic['%s'%key]=dictcontent[key]
                     if dictcontent[key]!='Success':
-                        self.failDetailHtml(curpath,'%s\\%s_FailHtml.html'%(curpath,device),dic,device)
+                        dicf['%s'%key]=dictcontent[key]
+            self.failDetailHtml(curpath,'%s\\%s_FailHtml.html'%(curpath,device),dicf,device)
             self.titleHtml('%s\sumHtml.html'%curpath,device)
             self.getDetailHtml(curpath,'%s\sumHtml.html'%curpath,dic,device)
         self.endHtml('%s\sumHtml.html'%curpath)

@@ -31,7 +31,7 @@ class MonkeyDevice(object):
         self.adbCmd.uninstallPackage(packageName)
         
     def shell(self, cmd):
-        self.adbCmd.shell(cmd)
+        return self.adbCmd.shell(cmd)
     
     def input(self,text):
         self.adbCmd.input(text)
@@ -45,13 +45,18 @@ class MonkeyDevice(object):
     def getLogCat(self, logPath):
         self.adbCmd.getLogCat(logPath)
     
-    def getDeviceSerial(self, deviceList):
-        return self.adbCmd.getDeviceSerial(deviceList)
+    def getDeviceSerial(self):
+        return self.adbCmd.getDeviceSerial()
     
-    def getDeviceNameList(self, deviceList):
-        return self.adbCmd.getDeviceNameList(deviceList)
+    def getDeviceName(self):
+        return self.adbCmd.getDeviceName()
     
-    def getLogPathList(self,scriptPath, devicesNameList):
-        return self.adbCmd.getLogPathList(scriptPath, devicesNameList)
-        
+    def getLogPath(self,scriptPath):
+        return self.adbCmd.getLogPath(scriptPath)
+
+    def closeApp(self, packageName):
+        self.adbCmd.closeApp(packageName)
+    
+    def getSystemProp(self, value):
+        return self.adbCmd.getSystemProp(value)
     

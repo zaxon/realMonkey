@@ -2,69 +2,17 @@
 '''
     @author wuqiaomin in 20140416
 '''
+import sys
 from xml.dom.minidom import Node
 from automatormonkey.monkeyrunnercore.info.Rect import Rect
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 class UiElement(object):
 
     def __init__(self, element):
         self.element = element
-        
-    def getChildBy(self,text=None,sid=None,cclass=None,index=None):
-        '''return element's info of the specified conditions 
-        you can use multi-condition to get
-        '''
-        tag='text'
-        listTag=[]
-        listTmp=[]
-        
-        tmpText=None
-        tmpSid=None
-        tmpClass=None
-        tmpIndex=None
-        x0 = None
-        y0 = None
-
-        if text != None :
-            tag = 'text'
-            tmpText = text
-            listTag.append(tag)
-            listTmp.append(tmpText)
-        if sid != None :
-            tag = 'source_id'
-            tmpSid = sid
-            listTag.append(tag)
-            listTmp.append(tmpSid)
-        if cclass != None :
-            tag = 'class'
-            tmpClass = cclass
-            listTag.append(tag)
-            listTmp.append(tmpClass)
-        if index != None :
-            tag = 'index'
-            tmpIndex = index
-            listTag.append(tag)
-            listTmp.append(tmpIndex)
-            
-        count = len(listTag)
-        flag = 0
-        
-        root = self.element
-        for node in root.getElementsByTagName('n node') :
-            try :
-                for i in range(0,count):
-                    if cmp(listTmp[i],node.getAttribute(listTag[i]).encode('utf-8'))==0:
-                        flag+=1
-                    else:
-                       break;
-            except Exception , e:
-                print 'xml encode error , please contact with wuqiaomin@baidu.com'
-            if flag>=count:
-               # print node.toxml().encode('utf-8')
-                return UiElement(node)
-            flag=0
-        raise AttributeError('elements  is not found, please check you condition')
-    
 
     def getText(self):
         return self.__getValue('text')
@@ -78,11 +26,11 @@ class UiElement(object):
     def getPackage(self):
         return self.__getValue('package')
 
-    def xy(self):
+    def getXY(self):
         rect = self.getVisibleBounds()
         x0 = (rect.right+rect.left)/2
         y0 = (rect.bottom + rect.top)/2
-        return str(x0) , str(y0)
+        return str(x0) , str(y0)    
 
     def height(self):
         rect = self.getVisibleBounds()
@@ -93,22 +41,22 @@ class UiElement(object):
         return abs(rect.right - rect.left)
         
     def isEnabled(self):
-        return self.__getValue('enabled')
+        return self.__getBoolValue(self.__getValue('enabled'))
 
     def isScrollable(self):
-        return self.__getValue('scrollable')
+        return self.__getBoolValue(self.__getValue('scrollable'))
 
     def isChecked(self):
-        return self.__getValue('checked')
+        return self.__getBoolValue(self.__getValue('checked'))
 
     def isSelected(self):
-        return self.__getValue('selected')
+        return self.__getBoolValue(self.__getValue('selected'))
 
     def isFocused(self):
-        return self.__getValue('focused')
+        return self.__getBoolValue(self.__getValue('focused'))
 
     def sid(self):
-        return self.__getValue('enabled')
+        return self.__getValue('resource-id')
 
     def getElement(self):
         return self.element
@@ -131,6 +79,11 @@ class UiElement(object):
     
     def __getValue(self, tag):
         return self.element.getAttribute(tag)
+
+    def __getBoolValue(self, value):
+        if value=='true':
+            return True
+        return False
     
 
 

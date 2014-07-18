@@ -1,0 +1,8 @@
+realMonkey version 1.1
+
+usage: realMonkey [Options] script.py
+
+Options arguments:
+  -s <device_id>		Beam to specific device 
+  -v				Prints out realMonkey version
+  -h				Show this help message

@@ -10,15 +10,13 @@ class FindAllTestClass():
         listtest=[]
         if not os.path.exists(path):
             print "%s路径不存在"%path
-        for root,dirs,files in os.walk(path,True):
-            if -1!=root.find(src):
-                print root
-            for item in files:
-                path=os.path.join(root,item)
-                if -1!=path.find(src):
-                    if os.path.splitext(item)[1]=='.py':
-                        if item[0:4]==src: 
-                            listtest.append(item)
+        cur_list=os.listdir(path)
+        for item in cur_list:
+            path=os.path.join(path,item)
+            if -1!=path.find(src):
+                if os.path.splitext(item)[1]=='.py':
+                    if item[0:4]==src:
+                        listtest.append(item)
         return listtest
 
     def ToXML(self,listcase):

@@ -24,8 +24,7 @@ class runTest(object):
     
     def __runshell(self,cmd):
         #print cmd
-        sub = subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print sub.stdout.read()
+        sub = subprocess.Popen(cmd)
         while 1:
            ret1 = subprocess.Popen.poll(sub)
            if ret1 == 0:
@@ -34,6 +33,7 @@ class runTest(object):
                time.sleep(1)
            else:
                break
+        return sub
             
     def copyfiles(self,srcPath,tagPath,curTime):
         if not os.path.isdir('result'):
@@ -60,20 +60,17 @@ class runTest(object):
         str+='</td></tr></table>'
         file_object.write(str)
                 
-    def run(self,methodlist,curTime):
+    def run(self,methodlist,curTime,serial):
         devices=[]
         path=os.path.abspath('..')
         for method in methodlist:
-            cmd='python %s\%s'%(path,method)
+            cmd='realMonkey -s %s %s\%s'%(serial,path,method)
             self.__runshell(cmd)
             files=os.listdir(path)
             testMethod=method[0:len(method)-3]
-            listItem=[]
             for item in files:
                 if testMethod in item:
                     if os.path.splitext(item)[1]=='':
-                        device=item[len(testMethod)+1:len(item)]
-                        listItem.append(device)
                         try:
                             self.parserLogToHtml('%s\%s'%(path,item))
                             self.copyfiles('%s\%s'%(path,item),item,curTime)
@@ -81,9 +78,7 @@ class runTest(object):
                             time.sleep(2.0)
                             shutil.rmtree('%s\%s'%(path,item))
                         except Exception, e:
-                            pass
-            devices.append(listItem)
-        return devices        
+                            pass       
 
     def parserLogToHtml(self,path):
         file_html=open('%s\log.html'%path,'w')
@@ -103,22 +98,19 @@ class runTest(object):
         file_object.close()
         os.remove('%s\log.txt'%path)
         
+    def getDeviceName(self,serialList):
+        deviceNames=[]
+        for serial in serialList:
+            p=subprocess.Popen('adb -s %s shell  getprop  ro.product.model' %serial,stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+            str = p.stdout.readlines()
+            deviceNames.append(str[0].split('\r')[0].strip().replace(' ','_'))
+        return  deviceNames
 
-    def deviceCount(self,devices):
-        num=0
-        deviceList=[]
-        for device in devices:
-            if(len(device)>num):
-                num=len(device)
-                deviceList=device
-        return deviceList
-        
-    def runTestCase(self,curTime):
+    def runTestCase(self,curTime,serial,serialList):
         listcase=[]
         methodlist=[]
         curPath=None
         devices=[]
-        deviceList=[]
         if os.path.isfile(os.getcwd()+'/configure/configure.xml'):
             methodlist=self.parserXML()
         else:
@@ -126,24 +118,9 @@ class runTest(object):
             listcase=allTestCase.SearcheDirFile(os.path.abspath('..'),'test')
             allTestCase.ToXML(listcase)
             methodlist=self.parserXML()
-        deviceList=self.run(methodlist,curTime)
-        devices=self.deviceCount(deviceList)
-        if len(devices)>0: 
-            html=ToSummaryHtml()
-            path='%s\\result\\%s'%(os.getcwd(),curTime)
-            html.seachHtmlFile(path,'report.html',methodlist,devices)
+        self.run(methodlist,curTime,serial)
+        devices=self.getDeviceName(serialList)
+        html=ToSummaryHtml()
+        path='%s\\result\\%s'%(os.getcwd(),curTime)
+        html.seachHtmlFile(path,'report.html',methodlist,devices)
 
-
-if __name__=='__main__':
-    curTime = time.strftime("%Y-%m-%dT%H-%M-%S", time.localtime(time.time()))
-    test=runTest()
-    test.runTestCase(curTime)
-    
-        
-
-
-
-        
-
-
-    
